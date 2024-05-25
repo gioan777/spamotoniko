@@ -1,35 +1,45 @@
 use std::collections::HashMap;
+use iced::{Element, Sandbox, Settings};
 
 #[derive(Default)]
 struct Text {
-    text_input: &mut str,
-    text_output: &mut str
+    text_input: String,
+    text_output: String
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum Message{
     Input
 }
-use std::ffi::OsString;
 
-use iced::widget::{shader::wgpu::core::device::SHADER_STAGE_COUNT, text_editor, Column};
+//use iced::widget::{shader::wgpu::core::device::SHADER_STAGE_COUNT, text_editor, Column};
 
+impl Sandbox for Text{
+    type Message = Message;
 
-impl Text{
-    pub fn view(&self) -> Column<Message>{
-        column![
-            
-        ]
+    fn new() -> Text {
+        Text { text_input: "val".to_string(), text_output: "lmaoing".to_string() }
     }
-    pub fn update(&mut self, message: Message){
-        
+
+    fn title(&self)->String {
+        String::from("Σπαμοτονικό Σύστημα")
+    }
+
+    fn update(&mut self, _message: Self::Message){
+        //LMAOING AT YOURE LIFE
+    }
+
+    fn view(&self) -> Element<Self::Message>{
+        "LMAOING".into() 
     }
 }
 
-fn katharevousopoisis(input :str )->str{
-    
+fn katharevousopoisis(input: &str, _vowels: &HashMap<Vec<u8>, Vec<u8>> )-> String{
+    input.chars()
+        //.map(|c| *( vowels.get( 0x03<<16 & (&c as u8)).unwrap_or(&c)))
+        .collect()
 } 
-fn main() {
+fn main() -> iced::Result {
     let mut vowels_map = HashMap::new();
     const PREFIX_IN:u64 = 0x03;
     const PREFIX_OUT:u64 = 0x1F;
@@ -90,6 +100,5 @@ fn main() {
     vowels_map.insert(v_cin, v_cout);
     vowels_map.insert(r_cin, r_cout);
 
-    iced::run();
-    println!("Hello, world!");
+    Text::run(Settings::default())
 }
