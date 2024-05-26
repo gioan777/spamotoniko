@@ -1,15 +1,15 @@
 use std::collections::HashMap;
-use iced::{Element, Sandbox, Settings};
-
-#[derive(Default)]
+use iced::{widget::{text_editor, container, column, text_input, text}, Element, Sandbox, Settings};
+use rand::seq::SliceRandom;
 struct Text {
-    text_input: String,
-    text_output: String
+    content: text_editor::Content,
+    //text_input: String,
+    //text_output: String
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Message{
-    Input
+    Edit(text_editor::Action),
 }
 
 //use iced::widget::{shader::wgpu::core::device::SHADER_STAGE_COUNT, text_editor, Column};
@@ -17,32 +17,52 @@ pub enum Message{
 impl Sandbox for Text{
     type Message = Message;
 
-    fn new() -> Text {
-        Text { text_input: "val".to_string(), text_output: "lmaoing".to_string() }
+    fn new() -> Self {
+        Self {
+            content: text_editor::Content::new(),
+        }
     }
 
     fn title(&self)->String {
         String::from("Σπαμοτονικό Σύστημα")
     }
 
-    fn update(&mut self, _message: Self::Message){
-        //LMAOING AT YOURE LIFE
+    fn update(&mut self, message: Self::Message){
+        match message {
+            Message::Edit(action) => {
+                self.content.perform(action);
+            }
+        }
     }
 
-    fn view(&self) -> Element<Self::Message>{
-        "LMAOING".into() 
+    fn view(&self) -> Element<'_, Message>{
+        let input = text_editor(&self.content).on_action(Message::Edit);
+        column![
+            container(input),
+//            container(text_editor(&self.content.text()))
+        ]
+        .padding(10)
+        .into()
     }
 }
 
-fn katharevousopoisis(input: &str, _vowels: &HashMap<Vec<u8>, Vec<u8>> )-> String{
+const PREFIX_IN:u8 = 0x03;
+const PREFIX_OUT:u8 = 0x1F;
+
+fn katharevousopoisis(input: &str, vowels: &HashMap< &u8, &Vec<u8>> )-> String{
     input.chars()
-        //.map(|c| *( vowels.get( 0x03<<16 & (&c as u8)).unwrap_or(&c)))
+        .map(|c| if ((c as u32) >> 8) as u8 == PREFIX_IN && vowels.contains_key(&(c as u8)) { 
+            char::from_u32(
+                ((PREFIX_OUT as u32) << 8) | *(vowels.get( &(c as u8)).unwrap().choose(&mut rand::thread_rng()).unwrap()) as u32
+            ).unwrap() 
+            } 
+            else {c} 
+        )
         .collect()
-} 
-fn main() -> iced::Result {
+}
+
+fn main() {
     let mut vowels_map = HashMap::new();
-    const PREFIX_IN:u64 = 0x03;
-    const PREFIX_OUT:u64 = 0x1F;
 
     let a_in: Vec<u8> = vec![0xb1, 0xac];
     let e_in: Vec<u8> = vec![0xb5, 0xad];
@@ -82,23 +102,46 @@ fn main() -> iced::Result {
     let r_out: Vec<u8> = (0xe4..=0xe5).collect();
     let r_cout: Vec<u8> = vec![0xec_u8];
   
-    vowels_map.insert(a_in, a_out);
-    vowels_map.insert(e_in, e_out);
-    vowels_map.insert(h_in, h_out);
-    vowels_map.insert(i_in, i_out);
-    vowels_map.insert(o_in, o_out);
-    vowels_map.insert(y_in, y_out);
-    vowels_map.insert(v_in, v_out);
-    vowels_map.insert(r_in, r_out);
- 
-    vowels_map.insert(a_cin, a_cout);
-    vowels_map.insert(e_cin, e_cout);
-    vowels_map.insert(h_cin, h_cout);
-    vowels_map.insert(i_cin, i_cout);
-    vowels_map.insert(o_cin, o_cout);
-    vowels_map.insert(y_cin, y_cout);
-    vowels_map.insert(v_cin, v_cout);
-    vowels_map.insert(r_cin, r_cout);
+    a_in.iter().for_each(|item|  { vowels_map.insert(item, &a_out); });
+    e_in.iter().for_each(|item|  { vowels_map.insert(item, &e_out); });
+    h_in.iter().for_each(|item|  { vowels_map.insert(item, &h_out); });
+    i_in.iter().for_each(|item|  { vowels_map.insert(item, &i_out); });
+    o_in.iter().for_each(|item|  { vowels_map.insert(item, &o_out); });
+    y_in.iter().for_each(|item|  { vowels_map.insert(item, &y_out); });
+    v_in.iter().for_each(|item|  { vowels_map.insert(item, &v_out); });
+    r_in.iter().for_each(|item|  { vowels_map.insert(item, &r_out); });
+    
+    a_cin.iter().for_each(|item|  { vowels_map.insert(item, &a_cout); });
+    e_cin.iter().for_each(|item|  { vowels_map.insert(item, &e_cout); });
+    h_cin.iter().for_each(|item|  { vowels_map.insert(item, &h_cout); });
+    i_cin.iter().for_each(|item|  { vowels_map.insert(item, &i_cout); });
+    o_cin.iter().for_each(|item|  { vowels_map.insert(item, &o_cout); });
+    y_cin.iter().for_each(|item|  { vowels_map.insert(item, &y_cout); });
+    v_cin.iter().for_each(|item|  { vowels_map.insert(item, &v_cout); });
+    r_cin.iter().for_each(|item|  { vowels_map.insert(item, &r_cout); });
 
-    Text::run(Settings::default())
+    let mut line = String::new();
+    let _ = std::io::stdin().read_line(&mut line).unwrap();
+
+    println!("{}", katharevousopoisis(&line, &vowels_map));
+    
+/*
+    let native_options = eframe::NativeOptions{
+        viewport: egui::ViewportBuilder::default()
+           .with_inner_size([400.0, 300.0])
+           .with_min_inner_size([300.0, 220.0])
+           //.with_icon()
+           ,
+        ..Default::default()
+    };
+
+    eframe::run_native(
+        "eframe template",
+        native_options,
+        Box::new(|cc| Box::new(eframe_template::TemplateApp::new(cc))),
+    )
+  */
+
+    
+    //Text::run(Settings::default())
 }
