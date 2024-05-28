@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 const PREFIX_IN:u8 = 0x03;
 const PREFIX_OUT:u8 = 0x1F;
 
-fn katharevousopoisis(input: &str, vowels: &HashMap< &u8, &Vec<u8>> )-> String{
+fn katharevousopoisis(input: &str, vowels: &HashMap< u8, Vec<u8>> )-> String{
     input.chars()
         .map(|c| if ((c as u32) >> 8) as u8 == PREFIX_IN && vowels.contains_key(&(c as u8)) { 
             char::from_u32(
@@ -19,10 +19,10 @@ fn katharevousopoisis(input: &str, vowels: &HashMap< &u8, &Vec<u8>> )-> String{
 
 fn main() {
     
-    let mut line = String::new();
-    let _ = std::io::stdin().read_line(&mut line).unwrap();
+    //let mut line = String::new();
+    //let _ = std::io::stdin().read_line(&mut line).unwrap();
 
-    println!("{}", katharevousopoisis(&line, &vowels_map));
+    //println!("{}", katharevousopoisis(&line, &vowels_map));
     
 /*
     let native_options = eframe::NativeOptions{
@@ -44,7 +44,7 @@ fn main() {
     //let app = SpamotonicSystem {vowels_map};
     let native_options = eframe::NativeOptions::default();
     //Text::run(Settings::default())
-    run_native("Σπαμοτονικό Σύστημα", native_options, Box::new(|cc| Box::new(SpamotonicSystem::new(cc))));
+    let _ = run_native("Σπαμοτονικό Σύστημα", native_options, Box::new(|cc| Box::new(SpamotonicSystem::new(cc))));
 }
 impl SpamotonicSystem{
     fn new(cc: &eframe::CreationContext<'_>) -> Self{
@@ -87,38 +87,48 @@ impl SpamotonicSystem{
         let r_out: Vec<u8> = (0xe4..=0xe5).collect();
         let r_cout: Vec<u8> = vec![0xec_u8];
         
-        a_in.iter().for_each(|item|  { vowels_map.insert(item, &a_out); });
-        e_in.iter().for_each(|item|  { vowels_map.insert(item, &e_out); });
-        h_in.iter().for_each(|item|  { vowels_map.insert(item, &h_out); });
-        i_in.iter().for_each(|item|  { vowels_map.insert(item, &i_out); });
-        o_in.iter().for_each(|item|  { vowels_map.insert(item, &o_out); });
-        y_in.iter().for_each(|item|  { vowels_map.insert(item, &y_out); });
-        v_in.iter().for_each(|item|  { vowels_map.insert(item, &v_out); });
-        r_in.iter().for_each(|item|  { vowels_map.insert(item, &r_out); });
+        a_in.iter().for_each(|item|  { vowels_map.insert(*item, a_out.clone()); });
+        e_in.iter().for_each(|item|  { vowels_map.insert(*item, e_out.clone()); });
+        h_in.iter().for_each(|item|  { vowels_map.insert(*item, h_out.clone()); });
+        i_in.iter().for_each(|item|  { vowels_map.insert(*item, i_out.clone()); });
+        o_in.iter().for_each(|item|  { vowels_map.insert(*item, o_out.clone()); });
+        y_in.iter().for_each(|item|  { vowels_map.insert(*item, y_out.clone()); });
+        v_in.iter().for_each(|item|  { vowels_map.insert(*item, v_out.clone()); });
+        r_in.iter().for_each(|item|  { vowels_map.insert(*item, r_out.clone()); });
         
-        a_cin.iter().for_each(|item|  { vowels_map.insert(item, &a_cout); });
-        e_cin.iter().for_each(|item|  { vowels_map.insert(item, &e_cout); });
-        h_cin.iter().for_each(|item|  { vowels_map.insert(item, &h_cout); });
-        i_cin.iter().for_each(|item|  { vowels_map.insert(item, &i_cout); });
-        o_cin.iter().for_each(|item|  { vowels_map.insert(item, &o_cout); });
-        y_cin.iter().for_each(|item|  { vowels_map.insert(item, &y_cout); });
-        v_cin.iter().for_each(|item|  { vowels_map.insert(item, &v_cout); });
-        r_cin.iter().for_each(|item|  { vowels_map.insert(item, &r_cout); });
+        a_cin.iter().for_each(|item|  { vowels_map.insert(*item, a_cout.clone()); });
+        e_cin.iter().for_each(|item|  { vowels_map.insert(*item, e_cout.clone()); });
+        h_cin.iter().for_each(|item|  { vowels_map.insert(*item, h_cout.clone()); });
+        i_cin.iter().for_each(|item|  { vowels_map.insert(*item, i_cout.clone()); });
+        o_cin.iter().for_each(|item|  { vowels_map.insert(*item, o_cout.clone()); });
+        y_cin.iter().for_each(|item|  { vowels_map.insert(*item, y_cout.clone()); });
+        v_cin.iter().for_each(|item|  { vowels_map.insert(*item, v_cout.clone()); });
+        r_cin.iter().for_each(|item|  { vowels_map.insert(*item, r_cout.clone()); });
 
-        let spamotonic_system = Self{
-            vowels_map
-        };
-        spamotonic_system
+        
+        Self{
+            input: Default::default(),
+            vowels_map: vowels_map.clone()
+        }
     }
 }
 #[derive(Default)]
-struct SpamotonicSystem<'a>{
-    vowels_map: HashMap<&'a u8, &'a Vec<u8>>
+struct SpamotonicSystem{
+    pub input: String,
+    vowels_map: HashMap<u8, Vec<u8>>
 }
 impl App for SpamotonicSystem{
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        let Self{input, vowels_map} = self;
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Σπαμοτονικό Σύστημα");
+            ui.add(
+                egui::TextEdit::multiline(input)
+                .font(egui::TextStyle::Monospace)
+                .desired_rows(10)
+                .desired_width(f32::INFINITY)
+            );
+            ui.heading(katharevousopoisis(input, &self.vowels_map));
         });
     }
 }
