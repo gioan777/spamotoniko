@@ -122,13 +122,15 @@ impl App for SpamotonicSystem{
         let Self{input, vowels_map} = self;
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Σπαμοτονικό Σύστημα");
-            ui.add(
+            let response = ui.add(
                 egui::TextEdit::multiline(input)
                 .font(egui::TextStyle::Monospace)
                 .desired_rows(10)
                 .desired_width(f32::INFINITY)
             );
-            ui.heading(katharevousopoisis(input, &self.vowels_map));
+            if response.changed(){
+                ui.heading(katharevousopoisis(input, &self.vowels_map));
+            }
         });
     }
 }
