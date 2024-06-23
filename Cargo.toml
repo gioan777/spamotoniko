@@ -7,3 +7,6 @@ edition = "2021"
 eframe = { git = "https://github.com/emilk/egui.git", features = ["wgpu"] }
 egui = { git = "https://github.com/emilk/egui.git" } 
 rand = "0.8.5"
+getrandom = { version = "0.2.15", features = ["js"] }
+wasm-bindgen-futures = "0.4.42"
+log = "0.4.21"

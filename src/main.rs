@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use eframe::{run_native, App};
+use eframe::App;
 use rand::seq::SliceRandom;
 
 const PREFIX_IN:u8 = 0x03;
@@ -16,7 +16,7 @@ fn katharevousopoisis(input: &str, vowels: &HashMap< u8, Vec<u8>> )-> String{
         )
         .collect()
 }
-
+#[cfg(not(target_arch = "wasm32"))]
 fn main() {
     
     //let mut line = String::new();
@@ -44,8 +44,26 @@ fn main() {
     //let app = SpamotonicSystem {vowels_map};
     let native_options = eframe::NativeOptions::default();
     //Text::run(Settings::default())
-    let _ = run_native("Σπαμοτονικό Σύστημα", native_options, Box::new(|cc| Ok(Box::new(SpamotonicSystem::new(cc)))));
+    let _ = eframe::run_native("Σπαμοτονικό Σύστημα", native_options, Box::new(|cc| Ok(Box::new(SpamotonicSystem::new(cc)))));
 }
+#[cfg(target_arch="wasm32")]
+fn main(){
+    eframe::WebLogger::init(log::LevelFilter::Debug).ok();
+
+    let web_options = eframe::WebOptions::default();
+
+    wasm_bindgen_futures::spawn_local(async {
+        eframe::WebRunner::new()
+            .start(
+                "the_canvas_id", // hardcode it
+                web_options,
+                Box::new(|cc| Ok(Box::new(SpamotonicSystem::new(cc)))),
+            )
+            .await
+            .expect("failed to start eframe");
+    });
+}
+
 impl SpamotonicSystem{
     fn new(cc: &eframe::CreationContext<'_>) -> Self{
         let mut vowels_map = HashMap::new();
