@@ -44,7 +44,7 @@ fn main() {
     //let app = SpamotonicSystem {vowels_map};
     let native_options = eframe::NativeOptions::default();
     //Text::run(Settings::default())
-    let _ = run_native("Σπαμοτονικό Σύστημα", native_options, Box::new(|cc| Box::new(SpamotonicSystem::new(cc))));
+    let _ = run_native("Σπαμοτονικό Σύστημα", native_options, Box::new(|cc| Ok(Box::new(SpamotonicSystem::new(cc)))));
 }
 impl SpamotonicSystem{
     fn new(cc: &eframe::CreationContext<'_>) -> Self{
@@ -108,18 +108,21 @@ impl SpamotonicSystem{
         
         Self{
             input: Default::default(),
-            vowels_map: vowels_map.clone()
+            vowels_map: vowels_map.clone(),
+            text: Default::default()
         }
     }
 }
 #[derive(Default)]
 struct SpamotonicSystem{
     pub input: String,
-    vowels_map: HashMap<u8, Vec<u8>>
+    vowels_map: HashMap<u8, Vec<u8>>,
+    pub text: String
 }
 impl App for SpamotonicSystem{
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        let Self{input, vowels_map} = self;
+        let Self{input, vowels_map, text} = self;
+        //let mut text=katharevousopoisis(input, &self.vowels_map);
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Σπαμοτονικό Σύστημα");
             let response = ui.add(
@@ -128,9 +131,16 @@ impl App for SpamotonicSystem{
                 .desired_rows(10)
                 .desired_width(f32::INFINITY)
             );
+            ui.heading(&self.text);
             if response.changed(){
-                ui.heading(katharevousopoisis(input, &self.vowels_map));
+                //text = katharevousopoisis(input, &self.vowels_map).clone();
+                update_spamotonics(&mut self.text, &ctx, input, &self.vowels_map);
             }
         });
     }
+}
+fn update_spamotonics(text: &mut String, ctx: &egui::Context, input: &str, vowels: &HashMap< u8, Vec<u8>>){
+    text.clear();
+    text.push_str(&katharevousopoisis(input, vowels).clone());
+    ctx.request_repaint();
 }
