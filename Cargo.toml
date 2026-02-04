@@ -4,9 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-eframe = { git = "https://github.com/emilk/egui.git", features = ["wayland"] }
+eframe = { git = "https://github.com/emilk/egui.git", version = "0.33.0", default-features = false, features = [
+    "default_fonts", # Embed the default egui fonts.
+    "glow",          # Use the glow rendering backend. Alternative: "wgpu".
+    "persistence",   # Enable restoring app state when restarting the app.
+    "wayland",       # To support Linux (and CI)
+    "x11",           # To support older Linux distributions (restores one of the default features)
+] }
+
 egui = { git = "https://github.com/emilk/egui.git" }
 rand = "0.8.5"
 getrandom = { version = "0.2.15", features = ["js"] }
-wasm-bindgen-futures = "0.4.42"
 log = "0.4.21"
+web-sys = "0.3.85"
+wasm-bindgen-futures = "0.4.58"
